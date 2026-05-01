@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from sqlmodel import SQLModel, Session
+from sqlmodel import SQLModel, Session, select
 from contextlib import asynccontextmanager
 
 from db import engine
@@ -22,9 +22,17 @@ def read_root():
 def health_check():
     return {"status":"ok"}
 
+@app.get('/links')
+def get_link():
+    with Session(engine) as session:
+        results = session.exec(select(Link))
+        links = results.all()
+        return links
 
-@app.post("/link")
-def add_post(link: Link):
+
+
+@app.post("/links")
+def add_link(link: Link):
     with Session(engine) as session:
         session.add(link)
         session.commit()
